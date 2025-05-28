@@ -12,9 +12,10 @@ interface LinkData {
 interface ExportButtonProps {
   data: LinkData[];
   disabled?: boolean;
+  originalFilename?: string;
 }
 
-const ExportButton: React.FC<ExportButtonProps> = ({ data, disabled = false }) => {
+const ExportButton: React.FC<ExportButtonProps> = ({ data, disabled = false, originalFilename }) => {
   const exportToExcel = () => {
     if (data.length === 0) return;
 
@@ -62,9 +63,13 @@ const ExportButton: React.FC<ExportButtonProps> = ({ data, disabled = false }) =
       XLSX.utils.book_append_sheet(workbook, worksheet, cleanCategoryName);
     });
 
-    // Generate and download the file
-    const timestamp = new Date().toISOString().split('T')[0];
-    const filename = `link-analysis-${timestamp}.xlsx`;
+    // Generate filename based on original JSON filename or fallback to timestamp
+    let filename = 'link-analysis.xlsx';
+    if (originalFilename) {
+      const nameWithoutExtension = originalFilename.replace(/\.json$/i, '');
+      filename = `${nameWithoutExtension}.xlsx`;
+    }
+    
     XLSX.writeFile(workbook, filename);
   };
 

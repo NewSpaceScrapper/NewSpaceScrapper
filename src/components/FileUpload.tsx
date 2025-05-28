@@ -10,7 +10,7 @@ interface LinkData {
 }
 
 interface FileUploadProps {
-  onUpload: (data: LinkData[]) => void;
+  onUpload: (data: LinkData[], filename: string) => void;
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
@@ -61,7 +61,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
       const validatedData = validateJsonData(jsonData);
       
       console.log('Processed JSON data:', validatedData);
-      onUpload(validatedData);
+      onUpload(validatedData, file.name);
       
     } catch (error) {
       console.error('File processing error:', error);

@@ -18,11 +18,13 @@ const Index = () => {
   const [data, setData] = useState<LinkData[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [originalFilename, setOriginalFilename] = useState<string>('');
 
-  const handleFileUpload = (jsonData: LinkData[]) => {
+  const handleFileUpload = (jsonData: LinkData[], filename: string) => {
     setData(jsonData);
     setSelectedCategories([]);
     setSearchQuery('');
+    setOriginalFilename(filename);
     toast.success(`Successfully loaded ${jsonData.length} links!`);
   };
 
@@ -103,12 +105,13 @@ const Index = () => {
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
               </div>
               <div className="flex gap-2">
-                <ExportButton data={data} disabled={data.length === 0} />
+                <ExportButton data={data} disabled={data.length === 0} originalFilename={originalFilename} />
                 <button
                   onClick={() => {
                     setData([]);
                     setSelectedCategories([]);
                     setSearchQuery('');
+                    setOriginalFilename('');
                   }}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                 >
