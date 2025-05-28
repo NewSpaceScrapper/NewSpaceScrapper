@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 interface LinkData {
   url: string;
   categories: string[];
+  summary?: string;
 }
 
 const Index = () => {
@@ -39,7 +40,8 @@ const Index = () => {
       
       const matchesSearch = searchQuery === '' || 
         item.url.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.categories.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase()));
+        item.categories.some(cat => cat.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (item.summary && item.summary.toLowerCase().includes(searchQuery.toLowerCase()));
       
       return matchesCategory && matchesSearch;
     });
@@ -143,6 +145,7 @@ const Index = () => {
                       key={index}
                       url={item.url}
                       categories={item.categories}
+                      summary={item.summary}
                       onCategoryClick={(category) => {
                         if (selectedCategories.includes(category)) {
                           setSelectedCategories(selectedCategories.filter(c => c !== category));

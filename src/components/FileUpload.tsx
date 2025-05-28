@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 interface LinkData {
   url: string;
   categories: string[];
+  summary?: string;
 }
 
 interface FileUploadProps {
@@ -34,10 +35,16 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
         throw new Error(`Item at index ${index} must have a "categories" array`);
       }
 
-      return {
+      const result: LinkData = {
         url: item.url,
         categories: item.categories.filter(cat => typeof cat === 'string')
       };
+
+      if (item.summary && typeof item.summary === 'string') {
+        result.summary = item.summary;
+      }
+
+      return result;
     });
   };
 
@@ -170,11 +177,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
 {`[
   {
     "url": "https://example.com/link1",
-    "categories": ["Technical", "Partnership"]
+    "categories": ["Technical", "Partnership"],
+    "summary": "Brief description of the link content"
   },
   {
     "url": "https://example.com/link2", 
-    "categories": ["Project Timeline"]
+    "categories": ["Project Timeline"],
+    "summary": "Optional summary field"
   }
 ]`}
         </pre>

@@ -5,10 +5,11 @@ import { ExternalLink, Tag } from 'lucide-react';
 interface LinkCardProps {
   url: string;
   categories: string[];
+  summary?: string;
   onCategoryClick: (category: string) => void;
 }
 
-const LinkCard: React.FC<LinkCardProps> = ({ url, categories, onCategoryClick }) => {
+const LinkCard: React.FC<LinkCardProps> = ({ url, categories, summary, onCategoryClick }) => {
   const getDomainFromUrl = (url: string) => {
     try {
       return new URL(url).hostname.replace('www.', '');
@@ -26,32 +27,39 @@ const LinkCard: React.FC<LinkCardProps> = ({ url, categories, onCategoryClick })
 
   return (
     <div className="bg-white rounded-xl shadow-sm border hover:shadow-md transition-all duration-200 p-6 group">
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+      <div className="flex flex-col gap-4">
         {/* URL Section */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-              <ExternalLink size={16} className="text-white" />
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+            <ExternalLink size={16} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm text-gray-500 mb-1">
+              {getDomainFromUrl(url)}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm text-gray-500 mb-1">
-                {getDomainFromUrl(url)}
-              </div>
-              <a
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 transition-colors duration-200 break-all block"
-                title={url}
-              >
-                {formatUrl(url)}
-              </a>
-            </div>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 transition-colors duration-200 break-all block"
+              title={url}
+            >
+              {formatUrl(url)}
+            </a>
           </div>
         </div>
+
+        {/* Summary Section */}
+        {summary && (
+          <div className="pl-11">
+            <p className="text-gray-700 text-sm leading-relaxed">
+              {summary}
+            </p>
+          </div>
+        )}
         
         {/* Categories Section */}
-        <div className="flex-shrink-0">
+        <div className="pl-11">
           <div className="flex items-center gap-2 flex-wrap">
             <Tag size={14} className="text-gray-400" />
             {categories.map((category, index) => (
