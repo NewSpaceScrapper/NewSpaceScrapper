@@ -5,6 +5,7 @@ import FileUpload from '../components/FileUpload';
 import CategoryFilter from '../components/CategoryFilter';
 import LinkCard from '../components/LinkCard';
 import SearchBar from '../components/SearchBar';
+import ExportButton from '../components/ExportButton';
 import { toast } from 'sonner';
 
 interface LinkData {
@@ -101,14 +102,15 @@ const Index = () => {
               <div className="flex-1">
                 <SearchBar value={searchQuery} onChange={setSearchQuery} />
               </div>
-              <div className="lg:w-80">
+              <div className="flex gap-2">
+                <ExportButton data={data} disabled={data.length === 0} />
                 <button
                   onClick={() => {
                     setData([]);
                     setSelectedCategories([]);
                     setSearchQuery('');
                   }}
-                  className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
                 >
                   <Upload size={16} />
                   Upload New File
