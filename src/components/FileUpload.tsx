@@ -1,5 +1,5 @@
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import { Upload, File, AlertCircle, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -16,6 +16,7 @@ interface FileUploadProps {
 const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateJsonData = (data: any): LinkData[] => {
     if (!Array.isArray(data)) {
@@ -102,6 +103,10 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
     }
   }, [processFile]);
 
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="w-full">
       <div
@@ -117,10 +122,11 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
         onDrop={handleDrop}
       >
         <input
+          ref={fileInputRef}
           type="file"
           accept=".json,application/json"
           onChange={handleFileSelect}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          className="hidden"
           disabled={isProcessing}
         />
         
@@ -158,6 +164,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
           {!isProcessing && (
             <button
               type="button"
+              onClick={handleButtonClick}
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105"
             >
               <Upload size={16} className="mr-2" />

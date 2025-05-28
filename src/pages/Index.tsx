@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
-import { Upload, Search, Filter, ExternalLink, Tag } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Upload, Search, Filter, ExternalLink, Tag, FileText } from 'lucide-react';
 import FileUpload from '../components/FileUpload';
 import CategoryFilter from '../components/CategoryFilter';
 import LinkCard from '../components/LinkCard';
@@ -19,6 +20,15 @@ const Index = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [originalFilename, setOriginalFilename] = useState<string>('');
+
+  // List of available company JSON files
+  const availableCompanies = [
+    'HyPrSpace',
+    'Isar Aerospace',
+    'PLD Space',
+    'RFA',
+    'Sirius'
+  ];
 
   const handleFileUpload = (jsonData: LinkData[], filename: string) => {
     setData(jsonData);
@@ -71,9 +81,46 @@ const Index = () => {
           </p>
         </div>
 
+        {/* Available Companies Section */}
+        {data.length === 0 && (
+          <div className="max-w-4xl mx-auto mb-8">
+            <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <FileText size={20} />
+                Available Company Data
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {availableCompanies.map((company) => (
+                  <Link
+                    key={company}
+                    to={`/company/${encodeURIComponent(company)}`}
+                    className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:shadow-md group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm group-hover:scale-105 transition-transform">
+                        {company.split(' ').map(word => word[0]).join('').toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
+                          {company}
+                        </h3>
+                        <p className="text-sm text-gray-600">View company data</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* File Upload */}
         {data.length === 0 && (
           <div className="max-w-2xl mx-auto mb-8">
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Or Upload Your Own File</h2>
+              <p className="text-gray-600">Upload a custom JSON file to analyze</p>
+            </div>
             <FileUpload onUpload={handleFileUpload} />
           </div>
         )}
