@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Filter, ExternalLink, Tag } from 'lucide-react';
@@ -28,13 +27,35 @@ const CompanyPage = () => {
       try {
         setLoading(true);
         console.log('Loading company data for:', company);
+        console.log('Current location:', window.location.href);
         
-        // Try the direct company name first
-        const response = await fetch(`/sorted posts/${company}.json`);
-        console.log('Fetch response status:', response.status);
+        // Try multiple path variations for better compatibility
+        const possiblePaths = [
+          `/sorted posts/${company}.json`,
+          `./sorted posts/${company}.json`,
+          `/public/sorted posts/${company}.json`,
+          `/sorted%20posts/${company}.json`
+        ];
         
-        if (!response.ok) {
-          throw new Error(`Company data not found for ${company}`);
+        let response;
+        let lastError;
+        
+        for (const path of possiblePaths) {
+          try {
+            console.log('Trying path:', path);
+            response = await fetch(path);
+            if (response.ok) {
+              console.log('Success with path:', path);
+              break;
+            }
+          } catch (error) {
+            console.log('Failed with path:', path, error);
+            lastError = error;
+          }
+        }
+        
+        if (!response || !response.ok) {
+          throw new Error(`Company data not found for ${company}. Tried multiple paths.`);
         }
         
         const jsonData = await response.json();
