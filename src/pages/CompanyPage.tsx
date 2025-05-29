@@ -27,15 +27,22 @@ const CompanyPage = () => {
       
       try {
         setLoading(true);
+        console.log('Loading company data for:', company);
+        
+        // Try the direct company name first
         const response = await fetch(`/sorted posts/${company}.json`);
+        console.log('Fetch response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Company data not found');
+          throw new Error(`Company data not found for ${company}`);
         }
+        
         const jsonData = await response.json();
+        console.log('Loaded company data:', jsonData);
         setData(jsonData);
       } catch (error) {
         console.error('Failed to load company data:', error);
-        toast.error('Failed to load company data');
+        toast.error(`Failed to load company data for ${company}`);
       } finally {
         setLoading(false);
       }
