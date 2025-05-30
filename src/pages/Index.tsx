@@ -186,10 +186,10 @@ const Index = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            JSON Link Organizer
+            NewSpace Scrapper
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Upload your JSON file to explore and organize links by categories with powerful filtering and search capabilities.
+            Upload your JSON file to explore and organize links by categories.
           </p>
         </div>
 
