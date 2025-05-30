@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -10,11 +9,6 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  build: {
-    assetsDir: "assets",
-    copyPublicDir: true,
-  },
-  publicDir: "public",
   plugins: [
     react(),
     mode === 'development' &&

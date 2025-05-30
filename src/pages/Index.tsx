@@ -21,7 +21,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [originalFilename, setOriginalFilename] = useState<string>('');
 
-  // List of available company JSON files - these must match exactly with the filenames in /sorted-posts/
+  // List of available company JSON files
   const availableCompanies = [
     'HyPrSpace',
     'Isar Aerospace',
@@ -93,7 +93,7 @@ const Index = () => {
                 {availableCompanies.map((company) => (
                   <Link
                     key={company}
-                    to={`/company/${company}`}
+                    to={`/company/${encodeURIComponent(company)}`}
                     className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:shadow-md group"
                   >
                     <div className="flex items-center gap-3">
