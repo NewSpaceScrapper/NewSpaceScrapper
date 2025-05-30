@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Search, Filter, ExternalLink, Tag } from 'lucide-react';
@@ -27,15 +26,24 @@ const CompanyPage = () => {
       
       try {
         setLoading(true);
-        const response = await fetch(`/sorted posts/${company}.json`);
+        console.log('Loading company data for:', company);
+        
+        // Try the URL-encoded path for the directory with spaces
+        const encodedPath = `/sorted%20posts/${encodeURIComponent(company)}.json`;
+        console.log('Attempting to fetch from:', encodedPath);
+        
+        const response = await fetch(encodedPath);
+        console.log('Fetch response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Company data not found');
+          throw new Error(`Company data not found for ${company}`);
         }
         const jsonData = await response.json();
+        console.log('Successfully loaded data:', jsonData);
         setData(jsonData);
       } catch (error) {
         console.error('Failed to load company data:', error);
-        toast.error('Failed to load company data');
+        toast.error(`Failed to load data for ${company}`);
       } finally {
         setLoading(false);
       }
