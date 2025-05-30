@@ -21,7 +21,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [originalFilename, setOriginalFilename] = useState<string>('');
 
-  // List of available company JSON files - these must match exactly with the filenames in /sorted-posts/
+  // List of available company JSON files - these must match exactly with the filenames in /sorted posts/
   const availableCompanies = [
     'HyPrSpace',
     'Isar Aerospace',
