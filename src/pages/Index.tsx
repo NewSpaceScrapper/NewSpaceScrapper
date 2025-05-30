@@ -22,13 +22,25 @@ const Index = () => {
   const [originalFilename, setOriginalFilename] = useState<string>('');
 
   // List of available company JSON files
-  const availableCompanies = [
-    'HyPrSpace',
-    'Isar Aerospace',
-    'PLD Space',
-    'RFA',
-    'Sirius'
-  ];
+ const availableCompanies = [
+  'Agnikul',
+  'Gilmour',
+  'HyPrSpace',
+  'HypImpulse',
+  'Innospace',
+  'Interstellar Technologies',
+  'Isar Aerospace',
+  'Maia Space',
+  'Orbex',
+  'Perigee',
+  'PLD Space',
+  'RFA',
+  'Sirius',
+  'Skyroot',
+  'Skyrora',
+  'Space One',
+];
+
 
   const handleFileUpload = (jsonData: LinkData[], filename: string) => {
     setData(jsonData);
@@ -83,13 +95,13 @@ const Index = () => {
 
         {/* Available Companies Section */}
         {data.length === 0 && (
-          <div className="max-w-4xl mx-auto mb-8">
+          <div className="max-w-8xl mx-auto mb-8">
             <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <FileText size={20} />
                 Available Company Data
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
                 {availableCompanies.map((company) => (
                   <Link
                     key={company}
