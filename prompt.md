@@ -28,15 +28,20 @@ Your goal is to process each post and return the following:
    - Any evolution or progress compared to previous milestones
    - Any specific hardware, location, mission or test name
 
-Format your answer as a **JSON object per post**, like this:
+Return the results as a **single JSON array**, with **one object per post**. Each object must follow this format:
 
 ```json
-{
-  "url": "<postUrl>",
-  "categories": ["<category1>", "<category2>", ...],
-  "summary": "<one-liner describing the main purpose of the post>"
-}
+[
+  {
+    "url": "<postUrl>",
+    "categories": ["<category1>", "<category2>", ...],
+    "summary": "<clear one-liner summary>"
+  },
+  ...
+]
 ```
+
+
 Be precise and avoid generic summaries. Extract dates, names, numbers, and technical keywords when available.
 Make sure the summary mention of this is a double of a post in another language (if they post both in English and Spanish for example)
 
