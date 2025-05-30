@@ -31,9 +31,9 @@ const CompanyPage = () => {
         
         // Try multiple path variations for better compatibility
         const possiblePaths = [
-          `/sorted posts/${company}.json`,
-          `./sorted posts/${company}.json`,
-          `/public/sorted posts/${company}.json`,
+          `/sorted-posts/${company}.json`,
+          `./sorted-posts/${company}.json`,
+          `/public/sorted-posts/${company}.json`,
           `/sorted%20posts/${company}.json`
         ];
         
