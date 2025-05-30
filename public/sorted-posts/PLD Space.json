@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
   {
     "url": "https://www.linkedin.com/posts/pld-space_the-first-edition-of-smallsat-europe-in-amsterdam-activity-7330550051791962112-jm-Q?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFsyZUYBH2tDEsbgneW-xiicuGyTwj5RqN8",
@@ -769,3 +770,13 @@
     "summary": "Announced a strategic partnership with Exolaunch to provide competitive end-to-end launch services for small satellites using the MIURA 5 launcher. Post includes a Spanish version. [cite: 366, 367, 369]"
   }
 ]
+=======
+
+[
+  {
+    "url": "https://example.com/pld-space-link1",
+    "categories": ["Technical Demonstration / Test"],
+    "summary": "PLD Space sample data for testing purposes."
+  }
+]
+>>>>>>> fc16721969b59584f6619c645c504f2e3aaee4b0

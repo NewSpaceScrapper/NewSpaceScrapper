@@ -28,7 +28,9 @@ const CompanyPage = () => {
         setLoading(true);
         console.log('Loading company data for:', company);
         console.log('Current location:', window.location.href);
+        console.log('Base URL:', window.location.origin);
         
+<<<<<<< HEAD
         // Try multiple path variations for better compatibility
         const possiblePaths = [
           `/sorted-posts/${company}.json`,
@@ -36,34 +38,38 @@ const CompanyPage = () => {
           `/public/sorted-posts/${company}.json`,
           `/sorted%20posts/${company}.json`
         ];
+=======
+        // Use a more production-friendly path structure
+        const baseUrl = window.location.origin;
+        const jsonPath = `/sorted-posts/${encodeURIComponent(company)}.json`;
+        const fullUrl = `${baseUrl}${jsonPath}`;
+>>>>>>> fc16721969b59584f6619c645c504f2e3aaee4b0
         
-        let response;
-        let lastError;
+        console.log('Attempting to fetch from:', fullUrl);
         
-        for (const path of possiblePaths) {
-          try {
-            console.log('Trying path:', path);
-            response = await fetch(path);
-            if (response.ok) {
-              console.log('Success with path:', path);
-              break;
-            }
-          } catch (error) {
-            console.log('Failed with path:', path, error);
-            lastError = error;
-          }
-        }
+        const response = await fetch(fullUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
         
-        if (!response || !response.ok) {
-          throw new Error(`Company data not found for ${company}. Tried multiple paths.`);
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.log('Error response body:', errorText);
+          throw new Error(`Failed to fetch ${company} data: ${response.status} ${response.statusText}`);
         }
         
         const jsonData = await response.json();
-        console.log('Loaded company data:', jsonData);
+        console.log('Successfully loaded company data:', jsonData);
         setData(jsonData);
       } catch (error) {
         console.error('Failed to load company data:', error);
-        toast.error(`Failed to load company data for ${company}`);
+        toast.error(`Failed to load company data for ${company}. Please check if the file exists.`);
       } finally {
         setLoading(false);
       }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
   {
     "url": "https://www.linkedin.com/posts/saxavord_saxavord-nato-rfa-activity-7330251721786408962-eyPx?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFsyZUYBH2tDEsbgneW-xiicuGyTwj5RqN8",
@@ -548,3 +549,13 @@
     "summary": "RFA reports a successful milestone with two quick-succession hot fires of its Fenix engine for the Redshift OTV, totaling 80 seconds of burn time, demonstrating hardware resilience for multiple ignitions[cite: 331]."
   }
 ]
+=======
+
+[
+  {
+    "url": "https://example.com/rfa-link1",
+    "categories": ["Partnership"],
+    "summary": "RFA sample data for testing purposes."
+  }
+]
+>>>>>>> fc16721969b59584f6619c645c504f2e3aaee4b0
