@@ -1,12 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Upload, Search, Filter, ExternalLink, Tag, FileText } from 'lucide-react';
+import { Upload, Search, Filter, ExternalLink, Tag, FileText, BookOpen, Copy } from 'lucide-react'; // Copy icon imported
 import FileUpload from '../components/FileUpload';
 import CategoryFilter from '../components/CategoryFilter';
 import LinkCard from '../components/LinkCard';
 import SearchBar from '../components/SearchBar';
 import ExportButton from '../components/ExportButton';
 import { toast } from 'sonner';
+
+import prompt from '../prompt.md?raw';
 
 // Helper to get icon path - updated for .jpg files with spaces and lowercase
 const getCompanyIcon = (company: string) =>
@@ -28,7 +30,10 @@ const Index = () => {
 
   const CACHE_KEY = 'company_data_availability';
   const CACHE_EXPIRY_KEY = 'company_data_availability_expiry';
-  const CACHE_DURATION = 600; // 10 minute cache in ms
+  const CACHE_DURATION = 600000; // 10 minutes in ms
+
+  // Sample prompt text - replace with your actual prompt
+  const promptText = prompt;
 
   const availableCompanies = [
     'Agnikul',
@@ -60,20 +65,18 @@ const Index = () => {
         const now = Date.now();
         
         if (now < expiryTime) {
-          const availableCompanies = JSON.parse(cached);
-          console.log('Loading cached availability data:', availableCompanies);
-          setAvailableCompanyData(new Set(availableCompanies));
+          const availableCompaniesData = JSON.parse(cached);
+          console.log('Loading cached availability data:', availableCompaniesData);
+          setAvailableCompanyData(new Set(availableCompaniesData));
           return true; // Cache is valid
         } else {
           console.log('Cache expired, will refresh data');
-          // Clear expired cache
           localStorage.removeItem(CACHE_KEY);
           localStorage.removeItem(CACHE_EXPIRY_KEY);
         }
       }
     } catch (error) {
       console.log('Error loading cached data:', error);
-      // Clear corrupted cache
       localStorage.removeItem(CACHE_KEY);
       localStorage.removeItem(CACHE_EXPIRY_KEY);
     }
@@ -104,13 +107,11 @@ const Index = () => {
         const encodedPath = `/sorted%20posts/${encodeURIComponent(company)}.json`;
         const response = await fetch(encodedPath);
         
-        // Check if response is actually JSON and has content
         if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
-          const data = await response.json();
-          // Verify it's an array with at least some data
-          if (Array.isArray(data) && data.length > 0) {
+          const responseData = await response.json();
+          if (Array.isArray(responseData) && responseData.length > 0) {
             available.add(company);
-            console.log(`✓ Data found for ${company}: ${data.length} items`);
+            console.log(`✓ Data found for ${company}: ${responseData.length} items`);
           } else {
             console.log(`✗ No valid data for ${company}: empty or invalid JSON`);
           }
@@ -122,7 +123,6 @@ const Index = () => {
       }
     });
     
-    // Wait for all checks to complete
     await Promise.all(checkPromises);
     
     console.log(`Found data for ${available.size}/${availableCompanies.length} companies:`, Array.from(available));
@@ -131,12 +131,8 @@ const Index = () => {
     setIsCheckingAvailability(false);
   };
 
-  // Check data availability on component mount
   React.useEffect(() => {
-    // First try to load from cache
     const hasCachedData = loadCachedAvailability();
-    
-    // If no valid cache, check availability
     if (!hasCachedData) {
       checkCompanyDataAvailability();
     }
@@ -180,6 +176,17 @@ const Index = () => {
     return stats;
   }, [data, allCategories]);
 
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(promptText)
+      .then(() => {
+        toast.success('Prompt copied to clipboard!');
+      })
+      .catch(err => {
+        console.error('Failed to copy prompt: ', err);
+        toast.error('Failed to copy prompt.');
+      });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
@@ -202,7 +209,6 @@ const Index = () => {
                   <FileText size={20} />
                   Available Company Data
                 </h2>
-                
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
                 {availableCompanies.map((company) => {
@@ -220,8 +226,7 @@ const Index = () => {
                       }`}
                     >
                       <div className="flex flex-col items-center text-center gap-3">
-                        {/* Company Icon - Made larger and centered */}
-                        <div className={`flex-shrink-0 w-16 h-16 border rounded-lg overflow-hidden shadow-sm ${
+                        <div className={`relative flex-shrink-0 w-16 h-16 border rounded-lg overflow-hidden shadow-sm ${
                           hasData ? 'bg-white border-gray-200' : 'bg-gray-100 border-gray-300'
                         }`}>
                           <img
@@ -229,7 +234,6 @@ const Index = () => {
                             alt={`${company} logo`}
                             className={`w-full h-full object-contain p-1 ${hasData ? '' : 'grayscale'}`}
                             onError={(e) => {
-                              // Fallback to a default icon or hide if image fails to load
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               const parent = target.parentElement;
@@ -241,6 +245,7 @@ const Index = () => {
                               }
                             }}
                           />
+                          {/* REMOVED COPY BUTTON FROM HERE */}
                         </div>
                         <div className="min-w-0 flex-1">
                           <h3 className={`font-medium transition-colors text-sm leading-tight ${
@@ -265,14 +270,45 @@ const Index = () => {
           </div>
         )}
 
-        {/* File Upload */}
+        {/* File Upload and Prompt Display Section */}
         {data.length === 0 && (
-          <div className="max-w-2xl mx-auto mb-8">
-            <div className="text-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Or Upload Your Own File</h2>
-              <p className="text-gray-600">Upload a custom JSON file to analyze</p>
+          <div className="max-w-6xl mx-auto mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* File Upload Section (Left Container) */}
+              <div>
+                <div className="text-center mb-4">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-2">Or Upload Your Own File</h2>
+                  <p className="text-gray-600">Upload a custom JSON file to analyze</p>
+                </div>
+                <FileUpload onUpload={handleFileUpload} />
+              </div>
+
+              {/* Prompt Display Section (Right Container) */}
+              <div className="bg-white rounded-xl shadow-sm border p-6 flex flex-col h-full">
+                <div className="flex items-center justify-between gap-2 mb-4"> {/* Changed to justify-between */}
+                  <div className="flex items-center gap-2"> {/* Grouped title and icon */}
+                    <BookOpen size={20} className="text-purple-600" />
+                    <h2 className="text-xl font-semibold text-gray-800">Analysis Prompt</h2>
+                  </div>
+                  {/* ADDED COPY BUTTON FOR PROMPT HERE */}
+                  <button
+                    onClick={handleCopyPrompt}
+                    className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    aria-label="Copy prompt text"
+                    title="Copy prompt text"
+                  >
+                    <Copy size={16} />
+                  </button>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 flex-1 overflow-y-auto min-h-0"> 
+                  <div className="prose prose-sm max-w-none">
+                    <div className="whitespace-pre-wrap text-sm text-gray-700 font-mono leading-relaxed">
+                      {promptText}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <FileUpload onUpload={handleFileUpload} />
           </div>
         )}
 
