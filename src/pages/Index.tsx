@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Upload, Search, Filter, ExternalLink, Tag, FileText } from 'lucide-react';
@@ -8,6 +7,10 @@ import LinkCard from '../components/LinkCard';
 import SearchBar from '../components/SearchBar';
 import ExportButton from '../components/ExportButton';
 import { toast } from 'sonner';
+
+// Helper to get icon path - updated for .jpg files with spaces and lowercase
+const getCompanyIcon = (company: string) =>
+  `/icons/${company.toLowerCase()}.jpg`;
 
 interface LinkData {
   url: string;
@@ -20,27 +23,124 @@ const Index = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [originalFilename, setOriginalFilename] = useState<string>('');
+  const [availableCompanyData, setAvailableCompanyData] = useState<Set<string>>(new Set());
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
 
-  // List of available company JSON files
- const availableCompanies = [
-  'Agnikul',
-  'Gilmour',
-  'HyPrSpace',
-  'HypImpulse',
-  'Innospace',
-  'Interstellar Technologies',
-  'Isar Aerospace',
-  'Maia Space',
-  'Orbex',
-  'Perigee',
-  'PLD Space',
-  'RFA',
-  'Sirius',
-  'Skyroot',
-  'Skyrora',
-  'Space One',
-];
+  const CACHE_KEY = 'company_data_availability';
+  const CACHE_EXPIRY_KEY = 'company_data_availability_expiry';
+  const CACHE_DURATION = 600; // 10 minute cache in ms
 
+  const availableCompanies = [
+    'Agnikul',
+    'Gilmour',
+    'HyPrSpace',
+    'HyImpulse',
+    'Innospace',
+    'Interstellar Technologies',
+    'Isar Aerospace',
+    'Maia Space',
+    'Orbex',
+    'Perigee',
+    'PLD Space',
+    'RFA',
+    'Sirius',
+    'Skyroot',
+    'Skyrora',
+    'Space One',
+  ];
+
+  // Load cached availability data
+  const loadCachedAvailability = () => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      const cacheExpiry = localStorage.getItem(CACHE_EXPIRY_KEY);
+      
+      if (cached && cacheExpiry) {
+        const expiryTime = parseInt(cacheExpiry, 10);
+        const now = Date.now();
+        
+        if (now < expiryTime) {
+          const availableCompanies = JSON.parse(cached);
+          console.log('Loading cached availability data:', availableCompanies);
+          setAvailableCompanyData(new Set(availableCompanies));
+          return true; // Cache is valid
+        } else {
+          console.log('Cache expired, will refresh data');
+          // Clear expired cache
+          localStorage.removeItem(CACHE_KEY);
+          localStorage.removeItem(CACHE_EXPIRY_KEY);
+        }
+      }
+    } catch (error) {
+      console.log('Error loading cached data:', error);
+      // Clear corrupted cache
+      localStorage.removeItem(CACHE_KEY);
+      localStorage.removeItem(CACHE_EXPIRY_KEY);
+    }
+    return false; // No valid cache
+  };
+
+  // Save availability data to cache
+  const saveCachedAvailability = (availableSet: Set<string>) => {
+    try {
+      const availableArray = Array.from(availableSet);
+      const expiryTime = Date.now() + CACHE_DURATION;
+      
+      localStorage.setItem(CACHE_KEY, JSON.stringify(availableArray));
+      localStorage.setItem(CACHE_EXPIRY_KEY, expiryTime.toString());
+      console.log('Saved availability data to cache:', availableArray);
+    } catch (error) {
+      console.log('Error saving to cache:', error);
+    }
+  };
+
+  // Check which companies have available data
+  const checkCompanyDataAvailability = async () => {
+    setIsCheckingAvailability(true);
+    const available = new Set<string>();
+    
+    const checkPromises = availableCompanies.map(async (company) => {
+      try {
+        const encodedPath = `/sorted%20posts/${encodeURIComponent(company)}.json`;
+        const response = await fetch(encodedPath);
+        
+        // Check if response is actually JSON and has content
+        if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
+          const data = await response.json();
+          // Verify it's an array with at least some data
+          if (Array.isArray(data) && data.length > 0) {
+            available.add(company);
+            console.log(`✓ Data found for ${company}: ${data.length} items`);
+          } else {
+            console.log(`✗ No valid data for ${company}: empty or invalid JSON`);
+          }
+        } else {
+          console.log(`✗ No data file for ${company}: ${response.status}`);
+        }
+      } catch (error) {
+        console.log(`✗ Error loading ${company}:`, error);
+      }
+    });
+    
+    // Wait for all checks to complete
+    await Promise.all(checkPromises);
+    
+    console.log(`Found data for ${available.size}/${availableCompanies.length} companies:`, Array.from(available));
+    setAvailableCompanyData(available);
+    saveCachedAvailability(available);
+    setIsCheckingAvailability(false);
+  };
+
+  // Check data availability on component mount
+  React.useEffect(() => {
+    // First try to load from cache
+    const hasCachedData = loadCachedAvailability();
+    
+    // If no valid cache, check availability
+    if (!hasCachedData) {
+      checkCompanyDataAvailability();
+    }
+  }, []);
 
   const handleFileUpload = (jsonData: LinkData[], filename: string) => {
     setData(jsonData);
@@ -97,30 +197,69 @@ const Index = () => {
         {data.length === 0 && (
           <div className="max-w-8xl mx-auto mb-8">
             <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FileText size={20} />
-                Available Company Data
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                {availableCompanies.map((company) => (
-                  <Link
-                    key={company}
-                    to={`/company/${encodeURIComponent(company)}`}
-                    className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:shadow-md group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm group-hover:scale-105 transition-transform">
-                        {company.split(' ').map(word => word[0]).join('').toUpperCase()}
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                  <FileText size={20} />
+                  Available Company Data
+                </h2>
+                
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+                {availableCompanies.map((company) => {
+                  const hasData = availableCompanyData.has(company);
+                  const CardComponent = hasData ? Link : 'div';
+                  
+                  return (
+                    <CardComponent
+                      key={company}
+                      {...(hasData ? { to: `/company/${encodeURIComponent(company)}` } : {})}
+                      className={`p-4 rounded-lg border transition-all duration-200 ${
+                        hasData 
+                          ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-gray-200 hover:border-blue-300 hover:shadow-md group cursor-pointer' 
+                          : 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center text-center gap-3">
+                        {/* Company Icon - Made larger and centered */}
+                        <div className={`flex-shrink-0 w-16 h-16 border rounded-lg overflow-hidden shadow-sm ${
+                          hasData ? 'bg-white border-gray-200' : 'bg-gray-100 border-gray-300'
+                        }`}>
+                          <img
+                            src={getCompanyIcon(company)}
+                            alt={`${company} logo`}
+                            className={`w-full h-full object-contain p-1 ${hasData ? '' : 'grayscale'}`}
+                            onError={(e) => {
+                              // Fallback to a default icon or hide if image fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const bgClass = hasData 
+                                  ? 'bg-gradient-to-br from-blue-100 to-purple-100 text-blue-600' 
+                                  : 'bg-gray-200 text-gray-400';
+                                parent.innerHTML = `<div class="w-full h-full ${bgClass} flex items-center justify-center text-lg font-bold">${company.charAt(0)}</div>`;
+                              }
+                            }}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className={`font-medium transition-colors text-sm leading-tight ${
+                            hasData 
+                              ? 'text-gray-800 group-hover:text-blue-600' 
+                              : 'text-gray-500'
+                          }`}>
+                            {company}
+                          </h3>
+                          <p className={`text-xs mt-1 ${
+                            hasData ? 'text-gray-600' : 'text-gray-400'
+                          }`}>
+                            {hasData ? 'View data' : 'No data available'}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-                          {company}
-                        </h3>
-                        <p className="text-sm text-gray-600">View company data</p>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+                    </CardComponent>
+                  );
+                })}
               </div>
             </div>
           </div>
