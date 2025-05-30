@@ -30,11 +30,11 @@ const CompanyPage = () => {
         console.log('Loading company data for:', company);
         
         // Try the direct company name first
-        const response = await fetch(`/sorted posts/${company}.json`);
+        const response = await fetch(`/sorted-posts/${company}.json`);
         console.log('Fetch response status:', response.status);
         
         if (!response.ok) {
-          throw new Error(`Company data not found for ${company}`);
+          throw new Error(`Company data not found for ${company}, status: ${response.status}`);
         }
         
         const jsonData = await response.json();
